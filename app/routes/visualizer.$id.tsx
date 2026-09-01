@@ -4,7 +4,12 @@ import { generate3DView } from '../../lib/ai.actions';
 import { Box, Download, RefreshCcw, Share2, X } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { createProject, getProjectById } from '../../lib/puter.action';
+import { ReactCompareSlider, ReactCompareSliderImage } from 'react-compare-slider';
 
+/**
+ * Visualizer page component for rendering and managing 3D floor plan projects.
+ * @returns {JSX.Element} Visualizer interface with render panel and controls.
+ */
 const visualizerId = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,8 +23,25 @@ const visualizerId = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
+  /**
+   * Navigates back to the home page.
+   */
   const handleBack = () => navigate('/');
+  const handleExport = ()=> {
+    if(!currentImage) return;
 
+    const link = document.createElement('a');
+    link.href = currentImage;
+    link.download = `roominate-${id || 'design'}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Runs AI generation to create a 3D view from the source floor plan and saves the result.
+   * @param {DesignItem} item - Design item containing source image to generate from.
+   */
   const runGeneration = async (item: DesignItem) => {
     if (!id || !item.sourceImage) return;
 
@@ -124,7 +146,7 @@ const visualizerId = () => {
             <div className='panel-actions'>
               <Button
                 size='sm'
-                onClick={()=> {}}
+                onClick={handleExport}
                 className='export'
                 disabled={!currentImage}
               >
@@ -159,6 +181,38 @@ const visualizerId = () => {
             )}
           </div>
 
+        </div>
+
+        <div className='panel compare'>
+          <div className='panel-header'>
+            <div className='panel-meta'>
+              <p>Comparison</p>
+              <h3>Before and After</h3>
+            </div>
+            <div className='hint'>Drag to compare</div>
+          </div>
+
+          <div className='compare-stage'>
+            {project?.sourceImage && currentImage ? (
+              <ReactCompareSlider
+                defaultValue={50}
+                style={{ width: '100%', height: 'auto' }} 
+                itemOne={
+                  <ReactCompareSliderImage src={project?.sourceImage} alt='before' className='compare-img' />
+                }
+
+                itemTwo={
+                  <ReactCompareSliderImage src={currentImage || project?.renderedImage || ''} alt='after' className='compare-img' />
+                }
+              />
+            ) : (
+              <div className='compare-fallback'>
+                {project?.sourceImage && (
+                  <img src={project.sourceImage} alt='Before' className='compare-img' />
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>

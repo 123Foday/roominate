@@ -7,6 +7,11 @@ import { useNavigate } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createProject, getProjects } from "../../lib/puter.action";
 
+/**
+ * Generates meta tags for the home page.
+ * @param {Route.MetaArgs} params - Route meta arguments.
+ * @returns {Array} Array of meta tag objects.
+ */
 export function meta({ }: Route.MetaArgs) {
   return [
     { title: "New React Router App" },
@@ -14,11 +19,20 @@ export function meta({ }: Route.MetaArgs) {
   ];
 }
 
+/**
+ * Home page component displaying hero section, upload area, and project gallery.
+ * @returns {JSX.Element} Home page layout.
+ */
 export default function Home() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<DesignItem[]>([]);
   const isCreatingProjectRef = useRef(false);
 
+  /**
+   * Handles file upload completion by creating a new project and navigating to visualizer.
+   * @param {string} base64Image - Base64-encoded uploaded image.
+   * @returns {Promise<boolean>} True if project creation succeeded, false otherwise.
+   */
   const handleUploadComplete = async (base64Image: string) => {
     try {
       if (isCreatingProjectRef.current) return false;
@@ -88,7 +102,7 @@ export default function Home() {
         <h1>Build beautiful space at the speed of though with Roominate</h1>
 
         <p className="subtitle">
-          Roominateis an AI-first design environment that helps you visualize, render, and ship architectural projects faster than ever.
+          Roominate is an AI-first design environment that helps you visualize, render, and ship architectural projects faster than ever.
         </p>
 
         <div className="actions">

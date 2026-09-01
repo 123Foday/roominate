@@ -3,9 +3,16 @@ import React from 'react'
 import Button from './ui/Button';
 import { useOutletContext } from 'react-router';
 
+/**
+ * Navigation bar component with authentication controls.
+ * @returns {JSX.Element} Navbar with branding, navigation links, and auth buttons.
+ */
 const Navbar = () => {
   const { isSignedIn, userName, signIn, signOut } = useOutletContext<AuthContext>()
 
+  /**
+   * Handles authentication button click to sign in or sign out.
+   */
   const handleAuthClick = async () => {
     if(isSignedIn) {
       try {

@@ -16,6 +16,10 @@ import {
   signOut as puterSignOut
  } from "../lib/puter.action";
 
+/**
+ * Defines external link resources for the application.
+ * @returns {Array} Array of link tag configurations for fonts and preconnects.
+ */
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -29,6 +33,12 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+/**
+ * Root layout component wrapping all application routes.
+ * @param {Object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components to render.
+ * @returns {JSX.Element} HTML document structure with meta tags and scripts.
+ */
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -53,9 +63,17 @@ const DEFAULT_AUTH_STATE: AuthState = {
   userId: null,
 }
 
+/**
+ * Main application component managing authentication state and routing.
+ * @returns {JSX.Element} Application layout with outlet for nested routes.
+ */
 export default function App() {
   const [ authState, setAuthState ] = useState<AuthState>(DEFAULT_AUTH_STATE);
 
+  /**
+   * Refreshes authentication state by fetching current user from Puter.
+   * @returns {Promise<boolean>} True if user is signed in, false otherwise.
+   */
   const refreshAuth = async () => {
     try {
       const user = await getCurrentUser();
@@ -77,11 +95,19 @@ export default function App() {
     refreshAuth();
   }, []);
 
+  /**
+   * Initiates sign-in flow and refreshes authentication state.
+   * @returns {Promise<boolean>} True if sign-in succeeded, false otherwise.
+   */
   const signIn = async () => {
     await puterSignIn();
     return await refreshAuth();
   }
 
+  /**
+   * Signs out the current user and refreshes authentication state.
+   * @returns {Promise<boolean>} Updated authentication status after sign-out.
+   */
    const signOut = async () => {
     puterSignOut();
     return await refreshAuth();
@@ -97,6 +123,12 @@ export default function App() {
   )
 }
 
+/**
+ * Error boundary component for handling and displaying route errors.
+ * @param {Route.ErrorBoundaryProps} props - Error boundary props.
+ * @param {Error} props.error - Error object that was thrown.
+ * @returns {JSX.Element} Error display page with message and optional stack trace.
+ */
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
