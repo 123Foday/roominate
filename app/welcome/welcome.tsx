@@ -1,6 +1,10 @@
 import logoDark from "./logo-dark.svg";
 import logoLight from "./logo-light.svg";
 
+/**
+ * Welcome component displaying React Router branding and resource links.
+ * @returns {JSX.Element} Welcome page with logo and navigation links.
+ */
 export function Welcome() {
   return (
     <main className="flex items-center justify-center pt-16 pb-4">

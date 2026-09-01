@@ -8,6 +8,10 @@ import { createHostingSlug,
   isHostedUrl 
 } from "./utils";
 
+/**
+ * Retrieves existing hosting configuration or creates a new Puter hosting subdomain.
+ * @returns {Promise<HostingConfig|null>} Hosting configuration with subdomain, or null on error.
+ */
 export const getOrCreateHostingConfig = async (): Promise<HostingConfig | null> => {
   const existing = (await puter.kv.get(HOSTING_CONFIG_KEY)) as HostingConfig | null;
 
@@ -21,7 +25,7 @@ export const getOrCreateHostingConfig = async (): Promise<HostingConfig | null> 
     const record = { subdomain: created.subdomain };
 
     await puter.kv.set(HOSTING_CONFIG_KEY, record);
-    
+
     return record;
   } catch (e) {
     console.warn(`Could not find subdomain: ${e}`);
@@ -29,12 +33,21 @@ export const getOrCreateHostingConfig = async (): Promise<HostingConfig | null> 
   }
 }
 
+/**
+ * Uploads an image to Puter hosting and returns the hosted URL.
+ * @param {StoreHostedImageParams} params - Upload parameters.
+ * @param {HostingConfig} params.hosting - Hosting configuration with subdomain.
+ * @param {string} params.url - Source URL or data URL of the image to upload.
+ * @param {string} params.projectId - Project identifier for organizing files.
+ * @param {string} params.label - Label for the image file (e.g., 'source', 'rendered').
+ * @returns {Promise<HostedAsset|null>} Object with hosted URL if successful, null on error.
+ */
 export const uploadImageToHosting = async ({ hosting, url, projectId, label }: StoreHostedImageParams): Promise<HostedAsset | null> => {
   if(!hosting || !url) return null;
   if(isHostedUrl(url)) return { url };
 
   try {
-    const resolved = label === "rendered" 
+    const resolved = label === "rendered"
       ? await imageUrlToPngBlob(url)
         .then((blob)=> blob ? { blob, contentType: 'image/png' }:  null)
       : await fetchBlobFromUrl(url)

@@ -6,6 +6,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
+/**
+ * Reusable button component with variant and size options.
+ * @param {ButtonProps} props - Button properties.
+ * @param {string} props.variant - Button style variant (primary, secondary, ghost, outline).
+ * @param {string} props.size - Button size (sm, md, lg).
+ * @param {boolean} props.fullWidth - Whether button should take full width.
+ * @param {string} props.className - Additional CSS classes.
+ * @param {React.ReactNode} props.children - Button content.
+ * @returns {JSX.Element} Styled button element.
+ */
 const Button = ({
   variant = 'primary',
   size = 'md',
