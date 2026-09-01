@@ -7,6 +7,12 @@ interface UploadProps {
   onComplete?: (base64Data: string) => void;
 }
 
+/**
+ * File upload component with drag-and-drop support and progress indicator.
+ * @param {UploadProps} props - Component props.
+ * @param {Function} props.onComplete - Callback invoked with base64 data when upload completes.
+ * @returns {JSX.Element} Upload component with dropzone or progress display.
+ */
 const Upload = ({ onComplete }: UploadProps) => {
   const [ file, setFile ] = useState<File | null>(null);
   const [ isDragging, setIsDragging ] = useState(false);
@@ -14,6 +20,10 @@ const Upload = ({ onComplete }: UploadProps) => {
 
   const { isSignedIn } = useOutletContext<AuthContext>();
 
+  /**
+   * Processes a selected file by reading it as base64 and triggering progress simulation.
+   * @param {File} file - File to process.
+   */
   const processFile = useCallback((file: File)=> {
     if(!isSignedIn) return;
 
@@ -41,16 +51,27 @@ const Upload = ({ onComplete }: UploadProps) => {
     reader.readAsDataURL(file);
   }, [isSignedIn, onComplete]);
 
+  /**
+   * Handles drag over event to enable drag-and-drop functionality.
+   * @param {React.DragEvent} e - Drag event.
+   */
   const handleDragOver = (e: React.DragEvent)=> {
     e.preventDefault();
     if(!isSignedIn) return;
     setIsDragging(true);
   };
 
+  /**
+   * Handles drag leave event to reset dragging state.
+   */
   const handleDragLeave = ()=> {
     setIsDragging(false);
   };
 
+  /**
+   * Handles file drop event and processes the dropped image file.
+   * @param {React.DragEvent} e - Drop event.
+   */
   const handleDrop = (e: React.DragEvent)=> {
     e.preventDefault();
     setIsDragging(false);
@@ -63,6 +84,10 @@ const Upload = ({ onComplete }: UploadProps) => {
     }
   };
 
+  /**
+   * Handles file input change event and processes the selected file.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Change event.
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
     if(!isSignedIn) return;
 

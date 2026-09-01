@@ -1,19 +1,40 @@
 export const HOSTING_CONFIG_KEY = "roominate_hosting_config";
 export const HOSTING_DOMAIN_SUFFIX = ".puter.site";
 
+/**
+ * Type guard to check if a value is a hosted URL on Puter.
+ * @param {unknown} value - Value to check.
+ * @returns {boolean} True if the value is a string containing the Puter hosting domain suffix.
+ */
 export const isHostedUrl = (value: unknown): value is string =>
     typeof value === "string" && value.includes(HOSTING_DOMAIN_SUFFIX);
 
+/**
+ * Generates a unique slug for Puter hosting subdomain.
+ * @returns {string} Unique subdomain slug combining timestamp and random characters.
+ */
 export const createHostingSlug = () =>
     `roominate-${Date.now().toString(36)}-${Math.random()
         .toString(36)
         .slice(2, 8)}`;
 
+/**
+ * Normalizes a subdomain to include the Puter hosting domain suffix if not already present.
+ * @param {string} subdomain - Subdomain to normalize.
+ * @returns {string} Normalized subdomain with domain suffix.
+ */
 const normalizeHost = (subdomain: string) =>
     subdomain.endsWith(HOSTING_DOMAIN_SUFFIX)
         ? subdomain
         : `${subdomain}${HOSTING_DOMAIN_SUFFIX}`;
 
+/**
+ * Constructs a full hosted URL from subdomain and file path.
+ * @param {Object} hosting - Hosting configuration.
+ * @param {string} hosting.subdomain - Puter hosting subdomain.
+ * @param {string} filePath - Path to the file relative to hosting root.
+ * @returns {string|null} Full HTTPS URL to the hosted file, or null if subdomain is missing.
+ */
 export const getHostedUrl = (
     hosting: { subdomain: string },
     filePath: string,
@@ -23,6 +44,12 @@ export const getHostedUrl = (
     return `https://${host}/${filePath}`;
 };
 
+/**
+ * Determines the appropriate file extension for an image based on content type or URL.
+ * @param {string} contentType - MIME content type of the image.
+ * @param {string} url - Image URL or data URL.
+ * @returns {string} Image file extension (e.g., 'png', 'jpg', 'webp'), defaults to 'png'.
+ */
 export const getImageExtension = (contentType: string, url: string): string => {
     const type = (contentType || "").toLowerCase();
     const typeMatch = type.match(/image\/(png|jpe?g|webp|gif|svg\+xml|svg)/);
@@ -47,6 +74,11 @@ export const getImageExtension = (contentType: string, url: string): string => {
     return "png";
 };
 
+/**
+ * Converts a data URL to a Blob object.
+ * @param {string} dataUrl - Base64 or URL-encoded data URL.
+ * @returns {Object|null} Object with blob and contentType properties, or null on parse failure.
+ */
 export const dataUrlToBlob = (
     dataUrl: string,
 ): { blob: Blob; contentType: string } | null => {
@@ -69,6 +101,11 @@ export const dataUrlToBlob = (
     }
 };
 
+/**
+ * Fetches a blob from a URL or converts a data URL to blob.
+ * @param {string} url - HTTP URL or data URL of the image.
+ * @returns {Promise<Object|null>} Object with blob and contentType properties, or null on failure.
+ */
 export const fetchBlobFromUrl = async (
     url: string,
 ): Promise<{ blob: Blob; contentType: string } | null> => {
@@ -88,6 +125,11 @@ export const fetchBlobFromUrl = async (
     }
 };
 
+/**
+ * Converts an image URL to a PNG blob by rendering it on a canvas.
+ * @param {string} url - URL of the image to convert.
+ * @returns {Promise<Blob|null>} PNG blob of the image, or null on failure or in non-browser environment.
+ */
 export const imageUrlToPngBlob = async (url: string): Promise<Blob | null> => {
     if (typeof window === "undefined") return null;
 

@@ -5,6 +5,10 @@ import { Box, Download, RefreshCcw, Share2, X } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { createProject, getProjectById } from '../../lib/puter.action';
 
+/**
+ * Visualizer page component for rendering and managing 3D floor plan projects.
+ * @returns {JSX.Element} Visualizer interface with render panel and controls.
+ */
 const visualizerId = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,8 +22,15 @@ const visualizerId = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
+  /**
+   * Navigates back to the home page.
+   */
   const handleBack = () => navigate('/');
 
+  /**
+   * Runs AI generation to create a 3D view from the source floor plan and saves the result.
+   * @param {DesignItem} item - Design item containing source image to generate from.
+   */
   const runGeneration = async (item: DesignItem) => {
     if (!id || !item.sourceImage) return;
 
