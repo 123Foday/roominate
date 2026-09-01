@@ -1,7 +1,15 @@
-import { CheckCircle2, ImageIcon, UploadIcon } from 'lucide-react';
+import { 
+  CheckCircle2, 
+  ImageIcon, 
+  UploadIcon 
+} from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { useOutletContext } from 'react-router';
-import { PROGRESS_INCREMENT, PROGRESS_INTERVAL_MS, REDIRECT_DELAY_MS } from '../lib/constants';
+import {
+   PROGRESS_INCREMENT, 
+   PROGRESS_INTERVAL_MS, 
+   REDIRECT_DELAY_MS 
+} from '../lib/constants';
 
 interface UploadProps {
   onComplete?: (base64Data: string) => void;
@@ -84,7 +92,7 @@ const Upload = ({ onComplete }: UploadProps) => {
           <input 
             type='file'
             className='drop-input'
-            accept='.jpg, .jpeg, .png'
+            accept='.jpg, .jpeg, .png, .webp'
             disabled={!isSignedIn}
             onChange={handleChange}
           />
@@ -98,7 +106,7 @@ const Upload = ({ onComplete }: UploadProps) => {
                 "Click to upload or just drag and drop"
               ) : ("sign in or sign up with Puter to upload")}
             </p>
-            <p className='help'>Maximum file size 10 MB</p>
+            <p className='help'>Maximum file size 50 MB.</p>
           </div>
         </div>
       ) : (

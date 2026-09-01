@@ -88,7 +88,7 @@ export default function Home() {
         <h1>Build beautiful space at the speed of though with Roominate</h1>
 
         <p className="subtitle">
-          Roominateis an AI-first design environment that helps you visualize, render, and ship architectural projects faster than ever.
+          Roominate is an AI-first design environment that helps you visualize, render, and ship architectural projects faster than ever.
         </p>
 
         <div className="actions">
