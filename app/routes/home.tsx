@@ -1,11 +1,11 @@
-import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Clock, Layers, Trash2 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import type { Route } from "./+types/home";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState } from "react";
-import { createProject, getProjects } from "../../lib/puter.action";
+import { createProject, getProjects, deleteProject } from "../../lib/puter.action";
 
 /**
  * Generates meta tags for the home page.
@@ -66,6 +66,27 @@ export default function Home() {
       return true;
     } finally {
       isCreatingProjectRef.current = false;
+    }
+  }
+
+  /**
+   * Handles deleting a project from the user's collection.
+   * @param {string} id - The ID of the project to delete.
+   * @returns {Promise<void>}
+   */
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      try {
+        const success = await deleteProject({ id });
+        if (success) {
+          setProjects(prev => prev.filter(project => project.id !== id));
+        } else {
+          alert('Failed to delete project');
+        }
+      } catch (error) {
+        console.error('Delete failed:', error);
+        alert('Failed to delete project');
+      }
     }
   }
 
@@ -167,6 +188,9 @@ export default function Home() {
                   </div>
                   <div className="arrow">
                     <ArrowUpRight size={18} />
+                  </div>
+                  <div className="delete-btn" onClick={(e)=> { e.stopPropagation(); handleDelete(id); }}>
+                    <Trash2 className='w-4 h-4 text-red-500 hover:text-red-700' />
                   </div>
                 </div>
               </div>

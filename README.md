@@ -1,40 +1,109 @@
-# Welcome to React Router!
+# Roominate
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Roominate is an AI-assisted architectural visualization tool. Upload a 2D floor plan and Roominate generates a photorealistic, top-down 3D render while preserving the plan's rooms, walls, doors, windows, and visible fixtures. Each project can be opened in a visualizer with a before-and-after comparison and exported as a PNG image.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- Puter authentication with sign-in and sign-out controls.
+- Floor-plan upload through click-to-upload or drag and drop.
+- JPG, JPEG, PNG, and WebP input support.
+- AI rendering through Puter's `txt2img` API using Gemini.
+- Automatic image hosting on a Puter `.puter.site` subdomain.
+- Project persistence and history through a Puter Worker API.
+- Before-and-after comparison using `react-compare-slider`.
+- PNG export of the generated render.
+- React Router server-side rendering and Vite hot module replacement.
+- TypeScript and Tailwind CSS.
 
-## Getting Started
+## How It Works
 
-### Installation
+1. A user signs in with Puter.
+2. The user uploads a floor-plan image from the home page.
+3. Roominate reads the image locally as a data URL and creates a project ID.
+4. The source image is uploaded to Puter hosting and project metadata is saved through the worker.
+5. The visualizer loads the project and sends the source image to the AI generation action.
+6. The generated image is converted to a data URL when necessary, uploaded to Puter hosting, and saved back to the project.
+7. The visualizer displays the render, comparison slider, and export controls.
 
-Install the dependencies:
+The AI prompt requires an orthographic top-down render, exact floor-plan geometry, no text or watermarks, and realistic materials and lighting. Furniture is added only when a corresponding fixture or icon is clearly present in the source plan.
+
+## Application Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Upload a floor plan and browse saved projects. |
+| `/visualizer/:id` | Load a project, generate its render, compare images, and export the result. |
+
+## Project Structure
+
+```text
+app/
+	root.tsx                 Root layout, authentication state, and error boundary
+	routes.ts                React Router route configuration
+	routes/home.tsx          Upload workflow and project gallery
+	routes/visualizer.$id.tsx Project visualizer and export workflow
+	app.css                  Application styles and Tailwind utilities
+components/
+	Navbar.tsx               Branding and Puter authentication controls
+	Upload.tsx               Image upload and progress UI
+	ui/Button.tsx            Shared button component
+lib/
+	ai.actions.ts            Image preparation and Gemini rendering action
+	constants.ts             Environment values, prompt, and UI constants
+	puter.action.ts          Authentication and project API actions
+	puter.hosting.ts         Puter hosting and image upload helpers
+	puter.worker.js          Worker endpoints for project persistence
+	utils.ts                 Image and hosting utilities
+public/                    Public static assets
+build/                     Generated production output; do not edit manually
+```
+
+## Requirements
+
+- Node.js 24 or newer. The Docker image uses `node:24-alpine`.
+- npm.
+- A Puter account for authentication, AI generation, hosting, and storage.
+- A deployed Puter Worker exposing the project endpoints used by the app.
+
+## Configuration
+
+Create a `.env` file in the project root:
+
+```dotenv
+VITE_PUTER_WORKER_URL=https://your-worker-url
+```
+
+`VITE_PUTER_WORKER_URL` is required for project history and persistence. The client calls these worker endpoints:
+
+- `POST /api/projects/save`
+- `GET /api/projects/list`
+- `GET /api/projects/get?id=<project-id>`
+
+The worker authenticates requests through the Puter user context and stores project records in the user's Puter key-value storage. The worker source is [lib/puter.worker.js](lib/puter.worker.js); deploy it according to the Puter Worker deployment process before testing saved projects.
+
+Without the worker URL, the app can still load, but project listing, project retrieval, and project saving are skipped. Uploading also requires the user to be signed in.
+
+## Local Development
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### Development
-
-Start the development server with HMR:
+Start the development server with hot module replacement:
 
 ```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+Open `http://localhost:5173` in a browser, sign in with Puter, and upload an image.
 
-## Building for Production
+Run the TypeScript and React Router checks:
+
+```bash
+npm run typecheck
+```
 
 Create a production build:
 
@@ -42,46 +111,71 @@ Create a production build:
 npm run build
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
+Run the production server from the generated build:
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+npm run start
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+The production server serves the output generated in `build/client` and `build/server`.
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
+## Docker
 
-### DIY Deployment
+Build the image:
 
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+```bash
+docker build -t roominate .
 ```
 
-## Styling
+Run it on port 3000:
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+```bash
+docker run --env-file .env -p 3000:3000 roominate
+```
 
----
+The Dockerfile installs development dependencies for the build stage, installs production dependencies in a separate stage, builds the React Router application, and runs the generated server with `npm run start`.
 
-Built with ❤️ using React Router.
+## Data and Storage
+
+Project records contain an ID, name, source image URL, optional rendered image URL, timestamp, owner information, and visibility metadata. Images begin as browser data URLs. Before a project is saved, Roominate uploads them to Puter hosting under paths similar to:
+
+```text
+projects/<project-id>/source.<extension>
+projects/<project-id>/rendered.png
+```
+
+The hosting subdomain is created once per user and cached in Puter key-value storage under `roominate_hosting_config`.
+
+## Troubleshooting
+
+### Projects do not appear in history
+
+Confirm that `VITE_PUTER_WORKER_URL` is set, the worker is deployed, and the browser user is signed in. Check the browser console for worker response or authentication errors.
+
+### Upload is unavailable
+
+The upload input is disabled until Puter authentication succeeds. Sign in from the navigation bar and try again.
+
+### Rendering fails
+
+Confirm that the Puter account can access the AI image-generation API and that the uploaded file is a supported image format. The generation action also needs to be able to fetch hosted source images.
+
+### Export is disabled
+
+Export becomes available after the visualizer has a generated render. Wait for the rendering state to finish and confirm that the render image is visible.
+
+## Technology Stack
+
+- React 19
+- React Router 8
+- TypeScript 5
+- Vite 8
+- Tailwind CSS 4
+- Puter.js
+- Gemini image generation through Puter
+- Lucide React
+- React Compare Slider
+
+## License
+
+No license file is currently included in this repository. Add one before distributing Roominate publicly.

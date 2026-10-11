@@ -316,6 +316,14 @@
           .note {
             @apply text-xs text-zinc-500 mt-1;
           }
+
+          .share-badge {
+            @apply inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full;
+
+            .icon {
+              @apply w-3.5 h-3.5;
+            }
+          }
         }
 
         .panel-actions {
@@ -327,6 +335,10 @@
 
           .share {
             @apply bg-black text-white h-9 shadow-sm hover:bg-zinc-800;
+          }
+
+          .share.shared {
+            @apply bg-green-600 hover:bg-green-700 cursor-default;
           }
         }
       }
@@ -350,6 +362,17 @@
 
         .render-fallback {
           @apply w-full h-full object-contain opacity-50;
+        }
+
+        .render-skeleton {
+          @apply w-full h-full flex items-center justify-center;
+        }
+
+        .skeleton-shimmer {
+          @apply w-3/4 h-3/4 rounded-lg;
+          background: linear-gradient(90deg, #e4e4e7 25%, #d4d4d8 50%, #e4e4e7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
         }
 
         .render-overlay {
@@ -397,6 +420,131 @@
         }
       }
     }
+
+    /* Toast notification */
+    .toast {
+      @apply fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-white border border-zinc-200 rounded-xl shadow-2xl px-4 py-3 min-w-[280px] max-w-sm;
+      animation: slide-in 0.3s ease-out;
+
+      &.success {
+        @apply border-green-200 bg-green-50;
+      }
+
+      &.error {
+        @apply border-red-200 bg-red-50;
+      }
+
+      .icon {
+        @apply w-5 h-5 flex-shrink-0;
+
+        &.success {
+          @apply text-green-500;
+        }
+
+        &.error {
+          @apply text-red-500;
+        }
+      }
+
+      .message {
+        @apply text-sm font-medium text-zinc-900 flex-1;
+      }
+
+      .dismiss {
+        @apply text-zinc-400 hover:text-zinc-600 p-1;
+      }
+    }
+
+    /* Share confirmation modal */
+    .share-modal {
+      @apply absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4;
+
+      .panel {
+        @apply bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-zinc-200;
+
+        .header {
+          @apply flex items-center justify-between mb-4;
+
+          h3 {
+            @apply text-lg font-serif font-bold text-black;
+          }
+
+          .close {
+            @apply w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors;
+          }
+        }
+
+        .content {
+          @apply text-center mb-6;
+
+          .icon {
+            @apply w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3;
+
+            .share {
+              @apply text-blue-500 w-6 h-6;
+            }
+          }
+
+          h4 {
+            @apply text-black font-semibold mb-2;
+          }
+
+          p {
+            @apply text-zinc-600 text-sm leading-relaxed;
+          }
+        }
+
+        .share-url {
+          @apply bg-zinc-50 border border-zinc-200 rounded-lg p-3 mb-4 text-left;
+
+          label {
+            @apply text-xs font-mono uppercase tracking-wider text-zinc-500 block mb-1;
+          }
+
+          .url-row {
+            @apply flex items-center gap-2;
+
+            input {
+              @apply flex-1 bg-transparent border-none outline-none text-sm font-mono text-zinc-900;
+            }
+
+            .copy-btn {
+              @apply px-3 py-1.5 text-xs font-medium bg-primary text-white rounded-lg hover:bg-orange-600 transition-colors flex-shrink-0;
+            }
+          }
+        }
+
+        .actions {
+          @apply flex gap-3;
+
+          .confirm {
+            @apply flex-1 bg-primary text-white hover:bg-orange-600 py-2.5 rounded-lg font-medium transition-colors;
+          }
+
+          .cancel {
+            @apply flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-200 py-2.5 rounded-lg font-medium transition-colors;
+          }
+        }
+      }
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
   }
 
   .home {
@@ -553,6 +701,10 @@
 
               .arrow {
                 @apply w-10 h-10 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300;
+              }
+
+              .delete-btn {
+                @apply absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 border border-zinc-200 flex items-center justify-center text-zinc-400 hover:bg-white hover:text-red-600 transition-all duration-200 z-10;
               }
             }
           }

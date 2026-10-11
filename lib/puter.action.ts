@@ -3,6 +3,8 @@ import { getOrCreateHostingConfig, uploadImageToHosting } from "./puter.hosting"
 import { isHostedUrl } from "./utils";
 import { PUTER_WORKER_URL } from "./constants";
 
+const PROJECT_PREFIX = 'roominate_project_';
+
 /**
  * Initiates the Puter authentication sign-in flow.
  * @returns {Promise<void>} Promise that resolves when sign-in is complete.
@@ -127,6 +129,36 @@ export const getProjects = async ()=> {
     return [];
   }
 }
+
+/**
+ * Deletes a project by its ID from Puter worker.
+ * @param {Object} params - Function parameters.
+ * @param {string} params.id - Unique identifier of the project to delete.
+ * @returns {Promise<boolean>} True if the project was deleted successfully, false otherwise.
+ */
+export const deleteProject = async ({ id }: { id: string }) => {
+    if (!PUTER_WORKER_URL) {
+        console.warn("Missing VITE_PUTER_WORKER_URL; skipping project delete.");
+        return false;
+    }
+
+    try {
+        // Use puter.kv directly to avoid CORS issues with workers.exec
+        const user = await puter.auth.getUser();
+        if (!user) {
+            console.warn("User not authenticated.");
+            return false;
+        }
+
+        const key = `${PROJECT_PREFIX}${id}`;
+        await puter.kv.del(key);
+
+        return true;
+    } catch (error) {
+        console.error("Failed to delete project:", error);
+        return false;
+    }
+};
 
 /**
  * Retrieves a specific project by its ID from Puter worker.
